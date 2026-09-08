@@ -1,0 +1,1 @@
+ALTER TABLE `surveys` ADD `management_fee` text DEFAULT '' NOT NULL;
