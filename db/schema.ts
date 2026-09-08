@@ -27,6 +27,7 @@ export const surveys = sqliteTable("surveys", {
   terminalUsePeriod: text("terminal_use_period").notNull().default(""),
   contractEndDate: text("contract_end_date").notNull().default(""),
   monthlyCost: text("monthly_cost").notNull().default(""),
+  managementFee: text("management_fee").notNull().default(""),
   currentPms: text("current_pms").notNull().default(""),
   currentVanDealer: text("current_van_dealer").notNull().default(""),
   contact: text("contact").notNull().default(""),
