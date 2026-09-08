@@ -1,76 +1,42 @@
-import { desc, eq } from "drizzle-orm";
-import { getDb } from "../../../../db";
-import { surveys } from "../../../../db/schema";
 import { getChatGPTUser } from "../../../chatgpt-auth";
 
-const clean=(value:unknown)=>typeof value==="string"?value.trim():"";
+const SUPABASE_URL="https://euleyianbkyfnubckkjk.supabase.co";
+const SUPABASE_KEY="sb_publishable_iZvZfi0XGXSbNftWOjKouA_yU6ICMKC";
+const FN=`${SUPABASE_URL}/functions/v1/van-surveys`;
 
-async function requireAdmin(){
+async function proxy(request:Request,method:string,path:string,body?:string){
   const user=await getChatGPTUser();
-  if(!user) return null;
-  return user;
+  if(!user)return Response.json({error:"ChatGPT 관리자 로그인이 필요합니다."},{status:401});
+  const token=request.headers.get("x-supabase-access-token")||"";
+  if(!token)return Response.json({error:"Supabase 관리자 로그인이 필요합니다."},{status:401});
+  const r=await fetch(`${FN}${path}`,{method,headers:{apikey:SUPABASE_KEY,authorization:`Bearer ${token}`,"content-type":"application/json"},body,cache:"no-store"});
+  const data=await r.json().catch(()=>({error:"Supabase 응답을 읽지 못했습니다."}));
+  return {r,data,user};
 }
 
-export async function GET(){
-  const user=await requireAdmin();
-  if(!user)return Response.json({error:"관리자 로그인이 필요합니다."},{status:401});
-  try{
-    const rows=await getDb().select().from(surveys).orderBy(desc(surveys.createdAt)).limit(5000);
-    return Response.json({rows,user:{displayName:user.displayName,email:user.email}});
-  }catch(error){
-    return Response.json({error:error instanceof Error?error.message:"DB 조회 실패"},{status:500});
-  }
+const mapRow=(r:any)=>({id:String(r.id),clinicName:r.dentist_name||"",region:r.region||"",district:r.district||"",currentVanDealer:r.current_van_dealer||r.van_company||"",currentPms:r.current_pms||"",terminalUsePeriod:r.terminal_use_period||"",contractType:r.contract_type||"",contractEndDate:r.contract_end_date||"",monthlyCost:r.monthly_cost||"",managementFee:r.management_fee||"",linkFee:r.link_fee||"",salesRep:r.sales_rep||r.writer_name||"",contact:r.contact||"",contactWhen:r.contact_when||"",deliveryMethod:r.delivery_method||"",fieldMemo:r.field_memo||"",devices:JSON.stringify(r.devices||[]),linkedServices:JSON.stringify(r.linked_services||[]),inconveniences:JSON.stringify(r.inconveniences||[]),costItems:JSON.stringify(r.cost_items||[]),contractTerms:JSON.stringify(r.contract_terms||[]),improvementItems:JSON.stringify(r.improvement_items||[]),createdAt:r.created_at||""});
+const parseJson=(v:unknown)=>{if(Array.isArray(v))return v;if(typeof v!=="string")return[];try{const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch{return[]}};
+
+export async function GET(request:Request){
+  const out=await proxy(request,"GET","?admin=1");
+  if(out instanceof Response)return out;
+  if(!out.r.ok)return Response.json(out.data,{status:out.r.status});
+  const rows=Array.isArray(out.data)?out.data.map(mapRow):[];
+  return Response.json({rows,user:{displayName:out.user.displayName,email:out.user.email}});
 }
 
 export async function PATCH(request:Request){
-  const user=await requireAdmin();
-  if(!user)return Response.json({error:"관리자 로그인이 필요합니다."},{status:401});
-  try{
-    const body=await request.json() as Record<string,unknown>;
-    const id=Number(body.id);
-    if(!Number.isInteger(id)||id<=0)return Response.json({error:"올바른 ID가 필요합니다."},{status:400});
-    const [saved]=await getDb().update(surveys).set({
-      clinicName:clean(body.clinicName),
-      region:clean(body.region),
-      district:clean(body.district),
-      currentVanDealer:clean(body.currentVanDealer),
-      currentPms:clean(body.currentPms),
-      terminalUsePeriod:clean(body.terminalUsePeriod),
-      contractType:clean(body.contractType),
-      contractEndDate:clean(body.contractEndDate),
-      monthlyCost:clean(body.monthlyCost),
-      managementFee:clean(body.managementFee),
-      linkFee:clean(body.linkFee),
-      salesRep:clean(body.salesRep),
-      contact:clean(body.contact),
-      contactWhen:clean(body.contactWhen),
-      deliveryMethod:clean(body.deliveryMethod),
-      fieldMemo:clean(body.fieldMemo),
-      devices:clean(body.devices)||"[]",
-      linkedServices:clean(body.linkedServices)||"[]",
-      inconveniences:clean(body.inconveniences)||"[]",
-      costItems:clean(body.costItems)||"[]",
-      contractTerms:clean(body.contractTerms)||"[]",
-      improvementItems:clean(body.improvementItems)||"[]",
-    }).where(eq(surveys.id,id)).returning();
-    if(!saved)return Response.json({error:"대상을 찾지 못했습니다."},{status:404});
-    return Response.json(saved);
-  }catch(error){
-    return Response.json({error:error instanceof Error?error.message:"DB 수정 실패"},{status:500});
-  }
+  const body=await request.json() as Record<string,unknown>;
+  const payload={id:String(body.id||""),dentist_name:String(body.clinicName||""),region:String(body.region||""),district:String(body.district||""),current_van_dealer:String(body.currentVanDealer||""),current_pms:String(body.currentPms||""),terminal_use_period:String(body.terminalUsePeriod||""),contract_type:String(body.contractType||""),contract_end_date:String(body.contractEndDate||""),monthly_cost:String(body.monthlyCost||""),management_fee:String(body.managementFee||""),link_fee:String(body.linkFee||""),sales_rep:String(body.salesRep||""),contact:String(body.contact||""),contact_when:String(body.contactWhen||""),delivery_method:String(body.deliveryMethod||""),field_memo:String(body.fieldMemo||""),devices:parseJson(body.devices),linked_services:parseJson(body.linkedServices),inconveniences:parseJson(body.inconveniences),cost_items:parseJson(body.costItems),contract_terms:parseJson(body.contractTerms),improvement_items:parseJson(body.improvementItems)};
+  const out=await proxy(request,"PATCH","",JSON.stringify(payload));
+  if(out instanceof Response)return out;
+  return Response.json(out.data,{status:out.r.status});
 }
 
 export async function DELETE(request:Request){
-  const user=await requireAdmin();
-  if(!user)return Response.json({error:"관리자 로그인이 필요합니다."},{status:401});
-  try{
-    const body=await request.json() as Record<string,unknown>;
-    const id=Number(body.id);
-    if(!Number.isInteger(id)||id<=0)return Response.json({error:"올바른 ID가 필요합니다."},{status:400});
-    const [deleted]=await getDb().delete(surveys).where(eq(surveys.id,id)).returning({id:surveys.id});
-    if(!deleted)return Response.json({error:"대상을 찾지 못했습니다."},{status:404});
-    return Response.json(deleted);
-  }catch(error){
-    return Response.json({error:error instanceof Error?error.message:"DB 삭제 실패"},{status:500});
-  }
+  const body=await request.json() as Record<string,unknown>;
+  const id=encodeURIComponent(String(body.id||""));
+  const out=await proxy(request,"DELETE",`?id=${id}`);
+  if(out instanceof Response)return out;
+  return Response.json(out.data,{status:out.r.status});
 }
