@@ -1,17 +1,13 @@
-import { getChatGPTUser } from "../../../chatgpt-auth";
-
 const SUPABASE_URL="https://euleyianbkyfnubckkjk.supabase.co";
 const SUPABASE_KEY="sb_publishable_iZvZfi0XGXSbNftWOjKouA_yU6ICMKC";
 const FN=`${SUPABASE_URL}/functions/v1/van-surveys`;
 
 async function proxy(request:Request,method:string,path:string,body?:string){
-  const user=await getChatGPTUser();
-  if(!user)return Response.json({error:"ChatGPT 관리자 로그인이 필요합니다."},{status:401});
   const token=request.headers.get("x-supabase-access-token")||"";
   if(!token)return Response.json({error:"Supabase 관리자 로그인이 필요합니다."},{status:401});
   const r=await fetch(`${FN}${path}`,{method,headers:{apikey:SUPABASE_KEY,authorization:`Bearer ${token}`,"content-type":"application/json"},body,cache:"no-store"});
   const data=await r.json().catch(()=>({error:"Supabase 응답을 읽지 못했습니다."}));
-  return {r,data,user};
+  return {r,data};
 }
 
 const mapRow=(r:any)=>({id:String(r.id),clinicName:r.dentist_name||"",region:r.region||"",district:r.district||"",currentVanDealer:r.current_van_dealer||r.van_company||"",currentPms:r.current_pms||"",terminalUsePeriod:r.terminal_use_period||"",contractType:r.contract_type||"",contractEndDate:r.contract_end_date||"",monthlyCost:r.monthly_cost||"",managementFee:r.management_fee||"",linkFee:r.link_fee||"",salesRep:r.sales_rep||r.writer_name||"",contact:r.contact||"",contactWhen:r.contact_when||"",deliveryMethod:r.delivery_method||"",fieldMemo:r.field_memo||"",devices:JSON.stringify(r.devices||[]),linkedServices:JSON.stringify(r.linked_services||[]),inconveniences:JSON.stringify(r.inconveniences||[]),costItems:JSON.stringify(r.cost_items||[]),contractTerms:JSON.stringify(r.contract_terms||[]),improvementItems:JSON.stringify(r.improvement_items||[]),createdAt:r.created_at||""});
@@ -22,7 +18,7 @@ export async function GET(request:Request){
   if(out instanceof Response)return out;
   if(!out.r.ok)return Response.json(out.data,{status:out.r.status});
   const rows=Array.isArray(out.data)?out.data.map(mapRow):[];
-  return Response.json({rows,user:{displayName:out.user.displayName,email:out.user.email}});
+  return Response.json({rows});
 }
 
 export async function PATCH(request:Request){
