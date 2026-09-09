@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./ppt-reference.css";
 import "./admin-position.css";
+import "./force-reference.css";
 import DashboardAdmin from "./DashboardAdmin";
 import ComparisonDirection from "./ComparisonDirection";
 import DashboardReference from "./DashboardReference";
