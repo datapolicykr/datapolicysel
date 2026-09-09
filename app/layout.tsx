@@ -4,6 +4,7 @@ import "./ppt-reference.css";
 import "./admin-position.css";
 import DashboardAdmin from "./DashboardAdmin";
 import ComparisonDirection from "./ComparisonDirection";
+import DashboardReference from "./DashboardReference";
 
 export const metadata: Metadata = {
   title: "치과 결제환경 설문",
@@ -12,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko"><body>{children}<ComparisonDirection/><DashboardAdmin/></body></html>;
+  return <html lang="ko"><body>{children}<ComparisonDirection/><DashboardReference/><DashboardAdmin/></body></html>;
 }
