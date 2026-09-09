@@ -1,0 +1,186 @@
+/* 2026-09-09 PPT reference alignment: (설문지123만)VAN20260909.pptx
+   Primary targets: 2) 비교 제안, 3) 대쉬 보드. Existing behavior is preserved. */
+
+:root{
+  --ppt-orange:#ef5a19;
+  --ppt-orange-deep:#d94e0d;
+  --ppt-cream:#fbf6f0;
+  --ppt-beige:#f2ece5;
+  --ppt-paper:#fffdfa;
+  --ppt-gray:#ece9e5;
+  --ppt-line:#d8d1ca;
+  --ppt-ink:#2a2a2a;
+  --ppt-muted:#77716c;
+}
+
+body{background:#f4f1ed}
+.page-shell{max-width:1240px}
+
+/* Top navigation – understated so the content reads like the PPT sheets */
+.topbar{height:68px;background:rgba(255,255,255,.97);border-bottom:1px solid #ded8d2;box-shadow:0 2px 14px rgba(72,50,34,.04)}
+.topbar nav{padding:4px;background:#f5f2ef;border:1px solid #e6e0da;border-radius:14px}
+.topbar nav button{border-radius:10px;padding:9px 14px}
+.topbar nav button.active{background:#fff;color:var(--ppt-orange);box-shadow:0 2px 8px rgba(73,51,38,.08)}
+
+/* Common paper treatment for all three sections */
+.survey-page,.compare-page,.dashboard{position:relative}
+.survey-page::before,.compare-page::before,.dashboard::before{content:"";position:absolute;inset:12px 2px auto;height:1px;background:linear-gradient(90deg,transparent,#e5d7cd 15%,#e5d7cd 85%,transparent);pointer-events:none}
+
+/* Page 1 – only light correction; primary goal remains pages 2 and 3 */
+.survey-heading h1,.dashboard-head h1{color:var(--ppt-orange-deep);font-weight:900;letter-spacing:-.045em}
+.survey-block{border-radius:10px;border-color:#ded7d0;box-shadow:0 8px 24px rgba(69,48,31,.04)}
+.survey-block>h2{font-weight:900;border-bottom:2px solid var(--ppt-orange);padding-bottom:10px;color:#292929}
+.question-title>span{border-radius:50%;background:var(--ppt-orange)}
+.option.selected{background:#fff5ee;border-color:var(--ppt-orange)}
+
+/* =========================
+   2. 비교 제안 — PPT page 2
+   ========================= */
+.compare-page{max-width:1160px;padding-top:28px}
+.compare-tools{max-width:1060px;margin:0 auto 14px;padding:0 4px}
+.compare-tools select,.compare-tools button{background:#fff;border:1px solid #d9d2cb;border-radius:8px;box-shadow:none}
+
+.compare-sheet{
+  max-width:1060px;
+  margin:0 auto;
+  background:var(--ppt-paper);
+  border:1px solid #d9d0c7;
+  min-height:0;
+  padding:22px 30px 44px;
+  box-shadow:0 18px 48px rgba(77,52,33,.10);
+}
+.compare-sheet-head{align-items:center;padding:1px 2px 12px;border-bottom:1px solid #eee5dd}
+.compare-sheet-head>span{
+  width:auto;min-width:160px;
+  padding:10px 24px;
+  border-radius:0;
+  background:var(--ppt-orange);
+  box-shadow:none;
+  font-size:19px;
+  letter-spacing:-.02em;
+}
+.compare-sheet-head img{width:132px;height:38px}
+.compare-sheet h1{font-size:27px;margin:22px 0 7px;color:#242424;font-weight:900;letter-spacing:-.05em}
+.compare-subject{font-size:13px;color:#77706a;margin-bottom:18px}
+
+.compare-frame{
+  border:0;
+  border-radius:0;
+  padding:0;
+  min-height:0;
+  background:#fff;
+}
+.compare-table{border-top:3px solid #4d4d4d;border-left:1px solid #bdb9b5;border-right:1px solid #bdb9b5}
+.compare-cols{background:#ddd9d5;border-bottom:1px solid #8d8985}
+.compare-cols b{font-size:12px;color:#373737;padding:11px 7px;border-right:1px solid #fff;font-weight:900}
+.compare-row{min-height:50px;border-bottom:1px solid #c6c2be;background:#fff}
+.compare-row>strong{font-size:12px;border-right:1px solid #c8c4c0;color:#3a3938}
+.compare-category{background:#f1eeeb!important;color:var(--ppt-orange-deep)!important;font-weight:900!important}
+.compare-item{background:#faf8f6;font-weight:800!important}
+.compare-row textarea{min-height:49px;border-right:1px solid #c8c4c0;font-size:11.5px;line-height:1.35;padding:8px 9px;background:#fff}
+.compare-row .osstem-cell{background:#fff8f2;color:#1f1f1f;font-weight:900}
+
+.compare-summary{margin-top:22px;border-top:2px solid #5b5b5b;padding-top:8px}
+.compare-summary-row{min-height:62px;border-bottom:1px solid #e0dbd6}
+.compare-summary-row strong{font-size:12px;color:#4b4845;font-weight:900}
+.compare-summary-row span{font-size:13px;color:#343332}
+.compare-summary-row b{color:var(--ppt-orange-deep);font-weight:900}
+
+/* Make the proposal ending read as a designed recommendation band */
+.compare-sheet [class*="recommend"],
+.compare-sheet [class*="proposal"],
+.compare-sheet [class*="benefit"]{
+  border-radius:0!important;
+}
+.compare-sheet .compare-summary + *{margin-top:18px}
+
+/* =========================
+   3. 대쉬 보드 — PPT page 3
+   ========================= */
+.dashboard{max-width:1180px;margin:auto;padding:32px 22px 72px}
+.dashboard-head{margin:0 0 18px;padding:0 2px 17px;border-bottom:2px solid var(--ppt-orange);align-items:center}
+.dashboard-head h1{font-size:34px;margin:0 0 7px;color:#262626}
+.dashboard-head p{font-size:13px;color:#756f69;font-weight:700}
+.dashboard-head button{border-radius:7px;border-color:#d8d1ca;background:#fff}
+
+.dash-tools{margin:0 0 14px;background:#f0ece8;border:1px solid #ddd6cf;padding:8px;border-radius:8px}
+.dash-tools select,.dash-tools button{border-radius:6px;border-color:#d5cec7;background:#fff}
+
+.kpis,.kpis.five{gap:9px}
+.kpis article,.pipeline article{
+  border-radius:7px;
+  border:1px solid #d9d3cd;
+  box-shadow:none;
+  padding:17px 18px;
+  background:#fff;
+  min-height:102px;
+}
+.kpis article:first-child{border-top:4px solid var(--ppt-orange)}
+.kpis small,.pipeline small{font-size:12px;margin-bottom:9px;color:#706a65}
+.kpis strong,.pipeline strong{font-size:29px;color:#292929;letter-spacing:-.04em}
+.alert-kpi{background:#fff4ec!important;border-color:#f0b78f!important}
+.alert-kpi small,.alert-kpi strong{color:var(--ppt-orange-deep)!important}
+
+.chart-grid,.chart-grid.lower{gap:10px}
+.chart-card{
+  border-radius:7px;
+  border:1px solid #d9d3cd;
+  padding:19px 20px;
+  margin-top:10px;
+  box-shadow:none;
+  background:#fff;
+}
+.chart-card h2{font-size:15px;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid #e5dfda;font-weight:900;color:#363331}
+.chart-card h2::before{content:"";display:inline-block;width:5px;height:17px;background:var(--ppt-orange);margin-right:2px}
+.bar-row{grid-template-columns:76px 1fr 30px;margin:11px 0;font-size:12px}
+.bar-row>div{height:9px;background:#ece8e4}
+.bar-row i{background:var(--ppt-orange)}
+.rank-row{padding:10px 1px;font-size:12px}
+.rank-row span b,.rank-row strong{color:var(--ppt-orange-deep)}
+.month-chart{height:135px}
+.month-chart i{background:var(--ppt-orange);border-radius:3px 3px 0 0}
+.pipeline{gap:8px}
+.pipeline article{padding:13px 14px;min-height:82px;background:#faf8f6}
+.pipeline article strong{font-size:23px}
+
+.target-card .table-wrap{margin:0 -20px -19px}
+.table-wrap table{font-size:11px}
+.table-wrap th{background:#ece9e6;color:#57524e;font-size:10px;font-weight:900;border-bottom:1px solid #cfc9c3}
+.table-wrap td{padding:9px 10px;border-bottom:1px solid #ebe6e1}
+.pill{background:#fff0e5;color:#b94408;border:1px solid #f0c2a7}
+
+/* Print / wide-screen: keep PPT-like page proportions */
+@media(min-width:1100px){
+  .compare-sheet{aspect-ratio:1.414/1;min-height:748px}
+  .dashboard{max-width:1180px}
+}
+
+@media(max-width:900px){
+  .compare-sheet{padding:18px 16px 30px}
+  .compare-sheet h1{font-size:23px}
+  .compare-frame{overflow-x:auto}
+  .dashboard{padding:24px 12px 60px}
+  .dashboard-head{align-items:flex-start}
+  .kpis.five{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:560px){
+  .topbar{padding:10px 8px}
+  .topbar nav{gap:2px;padding:3px}
+  .topbar nav button{font-size:12px;padding:8px 7px}
+  .compare-page{padding-left:7px;padding-right:7px}
+  .compare-tools{flex-wrap:wrap}
+  .compare-tools select{min-width:0;flex:1 1 100%}
+  .compare-tools button{margin-left:0}
+  .compare-sheet{padding:13px 10px 24px;border-left:0;border-right:0;box-shadow:none}
+  .compare-sheet-head>span{font-size:16px;padding:8px 15px}
+  .compare-sheet-head img{width:105px}
+  .compare-sheet h1{font-size:20px}
+  .compare-cols,.compare-row{grid-template-columns:62px 92px minmax(150px,1fr) minmax(150px,1fr) minmax(125px,.8fr)}
+  .compare-summary-row{grid-template-columns:154px minmax(150px,1fr) minmax(150px,1fr) minmax(125px,.8fr)}
+  .dashboard-head h1{font-size:28px}
+  .kpis,.kpis.five{grid-template-columns:1fr 1fr}
+  .kpis article{padding:13px;min-height:88px}
+  .kpis strong{font-size:24px}
+  .chart-card{padding:15px 12px}
+}
