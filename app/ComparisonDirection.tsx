@@ -2,121 +2,30 @@
 
 import {useEffect,useMemo,useState} from "react";
 import {createPortal} from "react-dom";
-import {BarChart3,CheckCircle2,GitCompareArrows,Printer,ShieldCheck,ShieldAlert} from "lucide-react";
+import {BarChart3,Monitor,Printer,ShieldCheck,Users} from "lucide-react";
 
-type Target={
-  id:string|number;clinicName:string;region:string;currentVanDealer?:string;createdAt:string;
-  devices?:string[];linkedServices?:string[];inconveniences?:string[];contractTerms?:string[];
-  terminalUsePeriod?:string;contractEndDate?:string;monthlyCost?:string;managementFee?:string;linkFee?:string;
-};
+type Target={id:string|number;clinicName:string;region:string;currentVanDealer?:string;createdAt:string;devices?:string[];linkedServices?:string[];inconveniences?:string[];contractTerms?:string[];terminalUsePeriod?:string;contractEndDate?:string;monthlyCost?:string;managementFee?:string;linkFee?:string};
 type Summary={targets?:Target[]};
-
-const groups=[
-  {name:"사용성",items:["단말기 이용","승인 정산","PMS연동"]},
-  {name:"기본비용",items:["단말기","관리비","연동비","소모품"]},
-  {name:"사용조건",items:["의무사용","대응채널","내방상담","출장수리","위약금"]},
-  {name:"지원",items:["현금지원","타서비스"]},
-];
-const notes:Record<string,string>={
-  "단말기":"단말기+멀티패드 기준","연동비":"원클릭 기준","소모품":"년 1롤 사용 기준",
-  "현금지원":"기본비용 차이 확인","타서비스":"합법적 범위에서만"
-};
+const groups=[{name:"사용성",items:["단말기 이용","승인 정산","PMS연동"]},{name:"기본비용",items:["단말기","관리비","연동비","소모품"]},{name:"사용조건",items:["의무사용","대응채널","내방상담","출장수리","위약금"]},{name:"지원",items:["현금지원","타서비스"]}];
+const notes:Record<string,string>={"단말기":"단말기+멀티패드 기준","연동비":"원클릭 기준","소모품":"년 1회 사용 기준","현금지원":"기본비용 차이 확인","타서비스":"합법적 범위에서만"};
 const moneyValue=(v="")=>Number((v.match(/[\d,]+/)?.[0]??"0").replaceAll(",",""))||0;
 const threeYear=(v:string,fallback:number)=>`${(moneyValue(v)*36||fallback).toLocaleString("ko-KR")}원/3년`;
-const specialQ1=new Set(["단말기(유선)","서명패드","멀티패드"]);
-const q2Pms=(t?:Target)=>(t?.linkedServices??[]).includes("PMS/EMR");
-const q3Settlement=(t?:Target)=>(t?.inconveniences??[]).includes("정산/입금");
-const q7Consumable=(t?:Target)=>(t?.contractTerms??[]).includes("소모품");
-const hasSpecialQ1=(t?:Target)=>(t?.devices??[]).some(x=>specialQ1.has(x));
-const obligation=(t?:Target)=>{
-  if(!t?.contractEndDate)return "3년";
-  const end=new Date(`${t.contractEndDate}-01T00:00:00`);
-  if(Number.isNaN(end.getTime()))return "3년";
-  const months=(end.getTime()-Date.now())/(1000*60*60*24*30.44);
-  return months>=36?"3년이상":"3년";
-};
-
-function currentValue(label:string,t?:Target){
-  if(label==="단말기 이용")return (t?.devices??[]).join(", ")||"Q1 답변 리스트";
-  if(label==="승인 정산")return q3Settlement(t)?"정산입금불편":"일상업무";
-  if(label==="PMS연동")return q2Pms(t)?"연동중":"없음";
-  if(label==="단말기")return hasSpecialQ1(t)?threeYear(t?.monthlyCost??"",360000):"360,000원/3년";
-  if(label==="관리비")return hasSpecialQ1(t)?threeYear(t?.managementFee??"",360000):"360,000원/3년";
-  if(label==="연동비")return q2Pms(t)?threeYear(t?.linkFee??"",540000):"해당없음";
-  if(label==="소모품")return q7Consumable(t)?"0원/3년":"90,000원/3년";
-  if(label==="의무사용")return obligation(t);
-  if(label==="대응채널")return "전화상담";
-  if(label==="내방상담")return "없음";
-  if(label==="출장수리")return "유료(구매시)";
-  if(label==="위약금")return "기기값 2~3배";
-  if(label==="현금지원")return (t?.contractTerms??[]).includes("현금지원")?"Y":"-";
-  if(label==="타서비스")return (t?.contractTerms??[]).filter(x=>["무료기기","월비용면제","매출지원","리베이트","타서비스 지원"].includes(x)).join(", ")||"-";
-  return "";
-}
-function osstemValue(label:string,t?:Target){
-  if(label==="단말기 이용")return "동일하게 제공";
-  if(label==="승인 정산")return q3Settlement(t)?"불편없이 제공":"동일하게 제공";
-  if(label==="PMS연동")return "PMS 여부/종류 무관하게 서비스";
-  if(label==="단말기")return "252,000원/3년";
-  if(label==="관리비")return "108,000원/3년";
-  if(label==="연동비")return "0원/3년";
-  if(label==="소모품")return "0원/3년";
-  if(label==="의무사용")return "3년 (동일)";
-  if(label==="대응채널")return "전화, 영업사원, 웹 플랫폼";
-  if(label==="내방상담")return "영업사원 수시방문";
-  if(label==="출장수리")return "무료(임대시)";
-  if(label==="위약금")return "할부 잔금";
-  if(label==="현금지원"||label==="타서비스")return "-";
-  return "";
-}
+const q2=(t?:Target)=>(t?.linkedServices??[]).includes("PMS/EMR"),q3=(t?:Target)=>(t?.inconveniences??[]).includes("정산/입금"),q7=(t?:Target)=>(t?.contractTerms??[]).includes("소모품");
+function currentValue(label:string,t?:Target){if(label==="단말기 이용")return (t?.devices??[]).join(", ")||"단말기(유선), 멀티패드";if(label==="승인 정산")return q3(t)?"정산입금 불편":"일상업무";if(label==="PMS연동")return q2(t)?"연동중":"없음";if(label==="단말기")return threeYear(t?.monthlyCost??"",360000);if(label==="관리비")return threeYear(t?.managementFee??"",360000);if(label==="연동비")return q2(t)?threeYear(t?.linkFee??"",540000):"해당없음";if(label==="소모품")return q7(t)?"0원/3년":"90,000원/3년";if(label==="의무사용")return t?.terminalUsePeriod||"3년";if(label==="대응채널")return "전화상담";if(label==="내방상담")return "없음";if(label==="출장수리")return "유료(구매시)";if(label==="위약금")return "기기값 2~3배";if(label==="현금지원")return (t?.contractTerms??[]).includes("현금지원")?"Y":"-";if(label==="타서비스")return (t?.contractTerms??[]).filter(x=>["무료기기","월비용면제","매출지원","리베이트","타서비스 지원"].includes(x)).join(", ")||"-";return ""}
+function osstemValue(label:string){return ({"단말기 이용":"동일하게 제공","승인 정산":"동일하게 제공","PMS연동":"PMS 여부/종류 무관하게 서비스","단말기":"252,000원/3년","관리비":"108,000원/3년","연동비":"0원/3년","소모품":"0원/3년","의무사용":"3년 (동일)","대응채널":"전화, 영업사원, 웹 플랫폼","내방상담":"영업사원 수시방문","출장수리":"무료(임대시)","위약금":"할부 잔금","현금지원":"-","타서비스":"-"} as Record<string,string>)[label]||""}
 
 export default function ComparisonDirection(){
-  const [host,setHost]=useState<HTMLElement|null>(null);
-  const [targets,setTargets]=useState<Target[]>([]);
-  const [selected,setSelected]=useState("");
-  const [current,setCurrent]=useState<Record<string,string>>({});
-  const [osstem,setOsstem]=useState<Record<string,string>>({});
-
-  useEffect(()=>{
-    const find=()=>{const el=document.querySelector<HTMLElement>(".compare-page");if(el){el.classList.add("comparison-direction-host");setHost(el)}else setHost(null)};
-    find();const obs=new MutationObserver(find);obs.observe(document.body,{childList:true,subtree:true});return()=>obs.disconnect();
-  },[]);
-  useEffect(()=>{if(!host)return;fetch("/api/surveys",{cache:"no-store"}).then(r=>r.ok?r.json():{}).then((x:Summary)=>setTargets(x.targets??[])).catch(()=>setTargets([]))},[host]);
-
-  const target=useMemo(()=>targets.find(x=>String(x.id)===selected),[targets,selected]);
-  useEffect(()=>{const c:Record<string,string>={},o:Record<string,string>={};groups.forEach(g=>g.items.forEach(i=>{c[i]=currentValue(i,target);o[i]=osstemValue(i,target)}));setCurrent(c);setOsstem(o)},[target]);
-
-  const currentTotal=["단말기","관리비","연동비","소모품"].reduce((s,k)=>s+moneyValue(current[k]??""),0);
-  const totalLabel=selected&&currentTotal>0?`${Math.round(currentTotal/10000)}만원/3년`:"135만원/3년";
-  const saving=Math.max(0,(selected&&currentTotal>0?currentTotal:1350000)-360000);
-  const savingLabel=`약 ${Math.round(saving/10000)}만원 절감`;
-  if(!host)return null;
-
-  return createPortal(<div className="comparison-direction-portal">
-    <style>{`
-      .comparison-direction-host>.compare-tools,.comparison-direction-host>.compare-sheet{display:none!important}
-      .comparison-direction-portal{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#252525}
-      .cd-tools{display:flex;gap:10px;align-items:center;margin-bottom:15px}.cd-tools select,.cd-tools button{border:1px solid #ddd5d0;background:#fff;border-radius:10px;padding:10px 12px}.cd-tools select{min-width:340px}.cd-tools button{margin-left:auto;display:flex;align-items:center;gap:7px;font-weight:700}
-      .cd-sheet{background:#fff;min-height:1120px;padding:20px 24px 48px;box-shadow:0 7px 24px rgba(69,45,28,.06)}
-      .cd-head{display:flex;justify-content:space-between;align-items:flex-start}.cd-label{background:#f05a00;color:#fff;border-radius:8px;padding:11px 22px;font-size:17px;font-weight:900}.cd-head img{width:145px;height:42px;object-fit:contain}
-      .cd-sheet h1{font-size:24px;margin:16px 0 5px;letter-spacing:-.04em}.cd-sub{font-size:12px;color:#6b7077;margin:0 0 14px}.cd-frame{border:1px solid #ead8cc;border-radius:18px;padding:30px 26px 38px;background:linear-gradient(180deg,#fff,#fffdfb)}
-      .cd-table{border-top:2px solid #555}.cd-cols,.cd-row{display:grid;grid-template-columns:82px 120px minmax(180px,1fr) minmax(180px,1fr) minmax(135px,.75fr)}.cd-cols{background:#dedede}.cd-cols b{padding:10px;text-align:center;font-size:12px;border-right:1px solid white}.cd-cols b:first-child{grid-column:1/3}.cd-group{border-bottom:1px solid #555}.cd-row{min-height:48px;border-bottom:1px solid #bbb}.cd-row:last-child{border-bottom:0}.cd-row>strong{display:flex;align-items:center;justify-content:center;padding:7px 8px;font-size:12px;text-align:center;border-right:1px solid #bbb}.cd-cat{color:#d64e00;background:#fafafa;font-weight:900}.cd-row textarea{width:100%;min-height:47px;border:0;border-right:1px solid #bbb;padding:8px 9px;resize:none;text-align:center;font:inherit;font-size:11px;line-height:1.35;background:#fff}.cd-row textarea:focus{outline:2px solid rgba(240,90,0,.25);outline-offset:-2px}.cd-row textarea:last-child{border-right:0}.cd-row .cd-osstem{background:#fff7f1;font-weight:800}
-      .cd-summary-title{margin:30px 0 12px;font-size:17px;font-weight:900}.cd-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.cd-card{border:1px solid #eaded6;border-radius:16px;padding:16px;background:#fff;min-height:142px;box-shadow:0 5px 14px rgba(80,50,28,.05)}.cd-card-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:#4a4a4a}.cd-card-head svg{color:#f05a00}.cd-flow{display:grid;grid-template-columns:1fr 26px 1fr;align-items:center;margin-top:16px;gap:4px}.cd-before,.cd-after{text-align:center;border-radius:12px;padding:12px 8px;font-size:12px;font-weight:800;line-height:1.45}.cd-before{background:#f5f5f5;color:#555}.cd-after{background:#fff3ea;color:#d44d00}.cd-arrow{text-align:center;color:#f05a00;font-size:18px;font-weight:900}.cd-big{font-size:20px;display:block}.cd-benefit{margin-top:12px;text-align:center;color:#d44d00;font-size:12px;font-weight:900}.cd-total{margin-top:14px;border-radius:16px;padding:18px 20px;background:linear-gradient(90deg,#fff7f1,#fff);border:1px solid #f1d7c7;display:flex;justify-content:space-between;align-items:center;gap:15px}.cd-total strong{font-size:18px}.cd-total span{font-size:24px;font-weight:900;color:#e25700}.cd-total small{display:block;color:#777;margin-top:4px}.cd-note{margin-top:10px;color:#888;font-size:10px;text-align:right}
-      @media(max-width:900px){.cd-frame{padding:14px 8px}.cd-cols,.cd-row{grid-template-columns:52px 88px minmax(130px,1fr) minmax(130px,1fr) 100px}.cd-summary-grid{grid-template-columns:1fr 1fr}.cd-tools select{min-width:0;flex:1}}
-      @media print{.topbar,.cd-tools,footer{display:none!important}.comparison-direction-host{padding:0!important}.cd-sheet{box-shadow:none}.cd-frame{border-color:#ddd}}
-    `}</style>
-    <div className="cd-tools"><select value={selected} onChange={e=>setSelected(e.target.value)}><option value="">설문을 선택해 비교안을 작성하세요</option>{targets.map(x=><option key={String(x.id)} value={String(x.id)}>{x.clinicName} · {x.region} · {(x.createdAt||"").slice(5,10)}</option>)}</select><button onClick={()=>window.print()}><Printer size={16}/>비교표 인쇄</button></div>
-    <section className="cd-sheet"><div className="cd-head"><span className="cd-label">계약 조건</span><img src="/osstem-wordmark-transparent.png" alt="OSSTEM"/></div><h1>“오스템 VAN서비스와 비교해 드립니다”</h1><p className="cd-sub">{target?<><strong>{target.clinicName}</strong> · {target.region}{target.currentVanDealer?` · 현재 ${target.currentVanDealer}`:""}</>:"앞 설문 답변을 선택하면 작성 디렉션에 따라 자동으로 채워지며, 필요한 항목은 직접 수정할 수 있습니다."}</p>
-      <div className="cd-frame"><div className="cd-table"><div className="cd-cols"><b>항목</b><b>현재 사용</b><b>오스템</b><b>비고</b></div>{groups.map(g=><div className="cd-group" key={g.name}>{g.items.map((item,i)=><div className="cd-row" key={item}><strong className="cd-cat">{i===0?g.name:""}</strong><strong>{item}</strong><textarea value={current[item]??""} onChange={e=>setCurrent(v=>({...v,[item]:e.target.value}))}/><textarea className="cd-osstem" value={osstem[item]??""} onChange={e=>setOsstem(v=>({...v,[item]:e.target.value}))}/><textarea defaultValue={notes[item]??""}/></div>)}</div>)}</div>
-        <h3 className="cd-summary-title">한눈에 보는 비교</h3>
-        <div className="cd-summary-grid">
-          <article className="cd-card"><div className="cd-card-head"><CheckCircle2 size={18}/>사용성</div><div className="cd-flow"><div className="cd-before">기존 업무</div><div className="cd-arrow">→</div><div className="cd-after">기존과 동일함</div></div></article>
-          <article className="cd-card"><div className="cd-card-head"><BarChart3 size={18}/>운영비용</div><div className="cd-flow"><div className="cd-before"><span className="cd-big">{totalLabel}</span>현재 사용</div><div className="cd-arrow">→</div><div className="cd-after"><span className="cd-big">36만원/3년</span>오스템</div></div><div className="cd-benefit">{savingLabel}</div></article>
-          <article className="cd-card"><div className="cd-card-head"><ShieldAlert size={18}/>사용조건</div><div className="cd-flow"><div className="cd-before">불편 · 위험<br/>위약금 부담</div><div className="cd-arrow">→</div><div className="cd-after">편리 · 안전<br/>명확한 조건</div></div></article>
-          <article className="cd-card"><div className="cd-card-head"><GitCompareArrows size={18}/>지원</div><div className="cd-flow"><div className="cd-before">현금 등<br/>불법지원 위험</div><div className="cd-arrow">→</div><div className="cd-after">합법적 범위<br/>안정적 운영</div></div></article>
-        </div>
-        <div className="cd-total"><div><strong><ShieldCheck size={19} style={{verticalAlign:"middle",marginRight:7}}/>운영비용만으로도 저렴</strong><small>+ 오스템 풀서비스 경험</small></div><span>{savingLabel}</span></div>
-        <div className="cd-note">※ 비교값은 앞 설문 응답을 기준으로 자동 작성되며 현장에서 수정 가능합니다.</div>
-      </div></section>
-  </div>,host);
+ const [host,setHost]=useState<HTMLElement|null>(null),[targets,setTargets]=useState<Target[]>([]),[selected,setSelected]=useState(""),[current,setCurrent]=useState<Record<string,string>>({}),[osstem,setOsstem]=useState<Record<string,string>>({});
+ useEffect(()=>{const find=()=>{const el=document.querySelector<HTMLElement>(".compare-page");if(el){el.classList.add("comparison-direction-host");setHost(el)}else setHost(null)};find();const obs=new MutationObserver(find);obs.observe(document.body,{childList:true,subtree:true});return()=>obs.disconnect()},[]);
+ useEffect(()=>{if(!host)return;fetch("/api/surveys",{cache:"no-store"}).then(r=>r.ok?r.json():{}).then((x:Summary)=>setTargets(x.targets??[])).catch(()=>setTargets([]))},[host]);
+ const target=useMemo(()=>targets.find(x=>String(x.id)===selected),[targets,selected]);
+ useEffect(()=>{const c:Record<string,string>={},o:Record<string,string>={};groups.forEach(g=>g.items.forEach(i=>{c[i]=currentValue(i,target);o[i]=osstemValue(i)}));setCurrent(c);setOsstem(o)},[target]);
+ const currentTotal=["단말기","관리비","연동비","소모품"].reduce((s,k)=>s+moneyValue(current[k]??""),0);const base=selected&&currentTotal>0?currentTotal:1350000;const saving=Math.max(0,base-360000);const savingLabel=`약 ${Math.round(saving/10000)}만원 절감`;const currentLabel=`${Math.round(base/10000)}만원/3년`;
+ if(!host)return null;
+ return createPortal(<div className="comparison-direction-portal"><style>{`
+ .comparison-direction-host>.compare-tools,.comparison-direction-host>.compare-sheet{display:none!important}.comparison-direction-portal{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#222;width:100%;max-width:100%}.cd-tools{display:flex;gap:10px;align-items:center;margin:0 auto 12px;max-width:1040px}.cd-tools select,.cd-tools button{border:1px solid #ddd;background:#fff;border-radius:8px;padding:9px 12px}.cd-tools select{min-width:330px}.cd-tools button{margin-left:auto;display:flex;gap:6px;align-items:center;font-weight:800}.cd-sheet{position:relative;width:min(100%,1040px);margin:auto;background:#fff;border:1px solid #eadbcf;box-shadow:0 10px 28px rgba(83,56,38,.08);padding:22px 34px 32px;box-sizing:border-box}.cd-ribbon{position:absolute;left:0;top:0;background:#ef5b20;color:#fff;font-size:19px;font-weight:900;padding:10px 38px;border-radius:0 0 8px 0}.cd-logo{position:absolute;right:24px;top:13px;width:118px}.cd-hero{text-align:center;padding:36px 120px 18px}.cd-hero h1{font-size:36px;line-height:1.08;margin:0;font-weight:900;letter-spacing:-.055em}.cd-hero h1 b{color:#ef5b20}.cd-hero p{margin:9px 0 0;color:#777;font-size:12px}.cd-frame{border:1px solid #ead8cc;border-radius:14px;padding:20px 22px 22px;background:#fffdfb;box-sizing:border-box;width:100%;overflow:hidden}.cd-table{border-top:2px solid #666;width:100%}.cd-cols,.cd-row{display:grid;grid-template-columns:9% 14% 25% 29% 23%;width:100%;min-width:0}.cd-cols{background:#dedede}.cd-cols b{padding:9px 4px;text-align:center;font-size:clamp(8px,1vw,12px);border-right:1px solid #fff;display:flex;align-items:center;justify-content:center}.cd-cols b:first-child{grid-column:1/3}.cd-group{border-bottom:1px solid #6d6d6d}.cd-row{min-height:42px;border-bottom:1px solid #c6c6c6}.cd-row:last-child{border-bottom:0}.cd-row>strong{display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 4px;font-size:clamp(8px,1vw,11.5px);border-right:1px solid #c7c7c7;min-width:0;word-break:keep-all}.cd-cat{background:#fafafa;color:#e05819;font-weight:900}.cd-row textarea{width:100%;min-width:0;min-height:41px;border:0;border-right:1px solid #c7c7c7;padding:5px 4px;resize:none;text-align:center;font:inherit;font-size:clamp(8px,.95vw,10.8px);line-height:1.3;background:#fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center}.cd-row textarea:last-child{border-right:0}.cd-row textarea:focus{outline:2px solid rgba(239,91,32,.2);outline-offset:-2px}.cd-osstem{background:#fff1e8!important;color:#df5218;font-weight:900!important}.bts{margin-top:16px;border-top:4px solid #ef5b20;padding-top:14px}.bts-title{display:flex;align-items:flex-end;gap:10px}.bts-title strong{font-size:44px;color:#ef5b20;line-height:.9}.bts-title h2{font-size:29px;margin:0;letter-spacing:-.04em}.bts-sub{font-size:12px;color:#777;margin:7px 0 12px}.bts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.bts-card{border:1px solid #eadcd1;border-radius:12px;padding:12px;background:#fff;min-height:144px}.bts-head{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:900}.bts-head svg{color:#ef5b20}.bts-flow{display:grid;grid-template-columns:1fr 18px 1fr;gap:4px;align-items:center;margin-top:12px}.bts-before,.bts-after{padding:10px 5px;text-align:center;border-radius:8px;font-size:10.5px;line-height:1.4;font-weight:800}.bts-before{background:#f1f2f3;color:#4b4b4b}.bts-after{background:#fff0e6;color:#df5318}.bts-arrow{text-align:center;color:#ef5b20;font-size:18px;font-weight:900}.bts-benefit{text-align:center;margin-top:8px;color:#ef5b20;font-size:11px;font-weight:900}.saving-band{margin-top:10px;background:linear-gradient(90deg,#ef5b20,#ff751f);color:#fff;border-radius:8px;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}.saving-band strong{font-size:19px}.saving-band span{font-size:30px;font-weight:900}.mentor-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}.mentor{border:1px solid #f0c9b1;border-radius:12px;padding:13px;background:#fffaf6}.mentor-top{display:flex;align-items:center;gap:10px}.mentor-num{width:34px;height:34px;border-radius:50%;background:#ef5b20;color:#fff;display:grid;place-items:center;font-size:20px;font-weight:900}.mentor h3{font-size:14px;margin:0}.mentor p{font-size:10.5px;color:#555;line-height:1.55;margin:7px 0 0}.mentor-note{margin-top:9px;padding:8px;border:1px solid #f2c6ad;border-radius:8px;background:#fff;font-size:9.5px;line-height:1.45}.cd-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;color:#777;font-size:10px}.cd-footer img{width:92px}
+ @media(max-width:900px){.cd-sheet{padding:18px 12px 24px}.cd-hero{padding:40px 70px 14px}.cd-hero h1{font-size:28px}.bts-grid{grid-template-columns:1fr 1fr}.mentor-grid{grid-template-columns:1fr}.cd-tools select{min-width:0;flex:1}.cd-frame{padding:12px 7px 16px}}
+ @media(max-width:600px){.cd-tools{flex-wrap:wrap}.cd-tools select{width:100%}.cd-tools button{margin-left:0}.cd-ribbon{font-size:15px;padding:8px 18px}.cd-logo{width:88px}.cd-hero{padding:38px 0 12px}.cd-hero h1{font-size:21px}.cd-hero p{font-size:10px}.cd-sheet{padding:16px 7px 22px}.cd-frame{padding:8px 3px}.cd-cols,.cd-row{grid-template-columns:9% 15% 25% 29% 22%}.cd-row textarea,.cd-row>strong,.cd-cols b{font-size:7.8px;padding-left:2px;padding-right:2px}.bts-title strong{font-size:34px}.bts-title h2{font-size:20px}.bts-grid{grid-template-columns:1fr}.saving-band{align-items:flex-start;gap:6px}.saving-band strong{font-size:15px}.saving-band span{font-size:23px;white-space:nowrap}}
+ @media print{.topbar,.cd-tools,footer{display:none!important}.comparison-direction-host{padding:0!important}.cd-sheet{box-shadow:none;border:0}}
+ `}</style><div className="cd-tools"><select value={selected} onChange={e=>setSelected(e.target.value)}><option value="">설문을 선택해 비교안을 작성하세요</option>{targets.map(x=><option key={String(x.id)} value={String(x.id)}>{x.clinicName} · {x.region} · {(x.createdAt||"").slice(5,10)}</option>)}</select><button onClick={()=>window.print()}><Printer size={16}/>비교표 인쇄</button></div><section className="cd-sheet"><div className="cd-ribbon">비교 제안</div><img className="cd-logo" src="/osstem-wordmark-transparent.png" alt="OSSTEM"/><div className="cd-hero"><h1>“오스템 <b>VAN서비스</b>와 비교해 드립니다”</h1><p>{target?<><strong>{target.clinicName}</strong> · {target.region}{target.currentVanDealer?` · 현재 ${target.currentVanDealer}`:""}</>:"앞 설문 답변을 선택하면 작성 디렉션에 따라 자동으로 채워지며, 현재 사용 항목은 직접 수정할 수 있습니다."}</p></div><div className="cd-frame"><div className="cd-table"><div className="cd-cols"><b>항목</b><b>현재 사용</b><b>오스템</b><b>비고</b></div>{groups.map(g=><div className="cd-group" key={g.name}>{g.items.map((item,i)=><div className="cd-row" key={item}><strong className="cd-cat">{i===0?g.name:""}</strong><strong>{item}</strong><textarea value={current[item]??""} onChange={e=>setCurrent(v=>({...v,[item]:e.target.value}))}/><textarea className="cd-osstem" value={osstem[item]??""} onChange={e=>setOsstem(v=>({...v,[item]:e.target.value}))}/><textarea defaultValue={notes[item]??""}/></div>)}</div>)}</div><section className="bts"><div className="bts-title"><strong>BTS</strong><h2>핵심 전환 제안</h2></div><div className="bts-sub">익숙한 사용 방식을 그대로, 비용과 계약 위험은 더 가볍게</div><div className="bts-grid"><article className="bts-card"><div className="bts-head"><Monitor size={19}/>사용성</div><div className="bts-flow"><div className="bts-before">기존 업무<br/>단말기(유선)<br/>멀티패드</div><div className="bts-arrow">→</div><div className="bts-after">기존과 동일함<br/>동일하게 제공<br/>(PMS 무관)</div></div></article><article className="bts-card"><div className="bts-head"><BarChart3 size={19}/>운영비용</div><div className="bts-flow"><div className="bts-before">{currentLabel}<br/>(현재 사용)</div><div className="bts-arrow">→</div><div className="bts-after">36만원/3년<br/>(오스템)</div></div><div className="bts-benefit">{savingLabel}</div></article><article className="bts-card"><div className="bts-head"><ShieldCheck size={19}/>사용조건</div><div className="bts-flow"><div className="bts-before">기기값 2~3배<br/>(위약금 부담)</div><div className="bts-arrow">→</div><div className="bts-after">관리·안전<br/>명확한 조건<br/>3년 동일</div></div></article><article className="bts-card"><div className="bts-head"><Users size={19}/>지원</div><div className="bts-flow"><div className="bts-before">현금 등<br/>불법지원</div><div className="bts-arrow">→</div><div className="bts-after">운영비용만으로<br/>저렴<br/>+ 오스템 풀서비스</div></div></article></div><div className="saving-band"><strong>운영비용만으로도 저렴<br/><small>+ 오스템 풀서비스 경험</small></strong><span>{savingLabel}</span></div><div className="mentor-grid"><article className="mentor"><div className="mentor-top"><span className="mentor-num">1</span><h3>변경 부담 최소</h3></div><p>기존 결제 경험은 그대로, 추가 학습 없이 쉽게 전환</p><div className="mentor-note"><b>권장 멘트</b><br/>새로운 결제방식을 배우는 것이 아니라, 단말기 교체로 기존 흐름을 유지하면서 오스템 편의를 더하는 제안입니다.</div></article><article className="mentor"><div className="mentor-top"><span className="mentor-num">2</span><h3>PMS 연동 편의</h3></div><p>수납·정산 수정일을 줄여 업무 효율을 높입니다.</p><div className="mentor-note"><b>권장 멘트</b><br/>직원이 금액을 다시 입력하고 나중에 정산을 맞추는 번거로움을 줄이는 것이 핵심입니다.</div></article><article className="mentor"><div className="mentor-top"><span className="mentor-num">3</span><h3>현장 밀착 지원</h3></div><p>오스템 전국 영업망과 전담 인력이 직접 함께합니다.</p><div className="mentor-note"><b>권장 멘트</b><br/>결제만 파는 서비스가 아니라, 오스템 담당자가 방문해 함께 챙기는 운영관리 서비스입니다.</div></article></div></section></div><div className="cd-footer"><img src="/osstem-wordmark-transparent.png" alt="OSSTEM"/><span>좋은 진료, 더 큰 가치. 오스템이 함께합니다.</span><span>OSSTEM VAN SERVICE | 02</span></div></section></div>,host)
 }
