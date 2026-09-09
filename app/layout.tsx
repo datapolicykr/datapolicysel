@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./admin-position.css";
 import "./reference-dashboard.css";
+import "./direct-ui-fixes.css";
 import DashboardAdmin from "./DashboardAdmin";
-import ComparisonDirection from "./ComparisonDirection";
-import DashboardRepFilter from "./DashboardRepFilter";
 
 export const metadata: Metadata = {
   title: "치과 결제환경 설문",
@@ -13,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko"><body>{children}<ComparisonDirection/><DashboardRepFilter/><DashboardAdmin/></body></html>;
+  return <html lang="ko"><body>{children}<DashboardAdmin/></body></html>;
 }
