@@ -1,0 +1,47 @@
+/* Preserve the latest functional UI and apply only PPT-like design enhancements. */
+
+/* Comparison tab: keep the existing functional renderer but make the whole table fit the viewport. */
+.comparison-direction-portal{width:100%;max-width:100%;overflow-x:hidden!important}
+.comparison-direction-portal .cd-sheet{width:min(100%,1040px)!important;max-width:100%!important;box-sizing:border-box!important}
+.comparison-direction-portal .cd-frame{width:100%!important;max-width:100%!important;overflow-x:hidden!important;box-sizing:border-box!important}
+.comparison-direction-portal .cd-table{width:100%!important;max-width:100%!important;table-layout:fixed!important}
+.comparison-direction-portal .cd-cols,
+.comparison-direction-portal .cd-row{width:100%!important;max-width:100%!important;min-width:0!important;grid-template-columns:8% 14% 25% 30% 23%!important}
+.comparison-direction-portal .cd-cols b,
+.comparison-direction-portal .cd-row>strong,
+.comparison-direction-portal .cd-row textarea{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;overflow-wrap:anywhere!important;word-break:keep-all!important}
+.comparison-direction-portal .cd-row textarea{padding:6px 5px!important;font-size:clamp(8px,1.05vw,11px)!important}
+.comparison-direction-portal .cd-row>strong{padding:6px 4px!important;font-size:clamp(8px,1.05vw,11.5px)!important}
+.comparison-direction-portal .cd-cols b{padding:8px 4px!important;font-size:clamp(8px,1.05vw,12px)!important}
+.comparison-direction-portal .bts-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.comparison-direction-portal .mentor-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+
+@media(max-width:760px){
+  .comparison-direction-portal .cd-tools{flex-wrap:wrap!important}
+  .comparison-direction-portal .cd-tools select{width:100%!important;min-width:0!important}
+  .comparison-direction-portal .cd-tools button{margin-left:0!important}
+  .comparison-direction-portal .cd-sheet{padding:16px 8px 22px!important}
+  .comparison-direction-portal .cd-hero{padding:38px 2px 12px!important}
+  .comparison-direction-portal .cd-hero h1{font-size:clamp(18px,5.2vw,25px)!important}
+  .comparison-direction-portal .cd-frame{padding:10px 4px 14px!important}
+  .comparison-direction-portal .cd-cols,
+  .comparison-direction-portal .cd-row{grid-template-columns:9% 15% 25% 29% 22%!important}
+  .comparison-direction-portal .bts-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .comparison-direction-portal .mentor-grid{grid-template-columns:1fr!important}
+  .comparison-direction-portal .saving-band{gap:8px!important}
+}
+@media(max-width:480px){
+  .comparison-direction-portal .cd-row textarea{font-size:7.8px!important;padding:4px 2px!important}
+  .comparison-direction-portal .cd-row>strong,.comparison-direction-portal .cd-cols b{font-size:7.8px!important;padding:4px 2px!important}
+  .comparison-direction-portal .bts-grid{grid-template-columns:1fr!important}
+}
+
+/* Dashboard: retain the native latest dashboard and Admin host. Only replace region bars with a Korea map. */
+.dashboard .dashboard-map-host{position:relative;overflow:hidden}
+.dashboard .dashboard-map-host>.bar-row{display:none!important}
+.dashboard-korea-map{position:relative;height:330px;margin-top:4px;background:#fbfbfb;border-radius:10px;overflow:hidden}
+.korea-svg{position:absolute;left:18%;top:2%;width:58%;height:96%}
+.region-pin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap}
+.region-pin::after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:10px;height:10px;background:#f05a00;border-radius:50%;box-shadow:0 0 0 4px rgba(240,90,0,.10)}
+.region-pin b{color:#f05a00;font-size:13px}
+@media(max-width:700px){.dashboard-korea-map{height:270px}.region-pin{font-size:9px;padding:4px 6px}.region-pin b{font-size:11px}}
