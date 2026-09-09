@@ -1,4 +1,4 @@
 .dashboard{position:relative}
-.dashboard .dash-tools>button:nth-of-type(2){position:absolute;top:30px;right:142px;z-index:5;font-size:0!important;background:#2f2f2f!important;border-color:#2f2f2f!important;color:#fff!important;padding:9px 15px!important;min-width:70px}
-.dashboard .dash-tools>button:nth-of-type(2)::after{content:"Admin";font-size:13px;font-weight:800;letter-spacing:.02em}
-@media(max-width:760px){.dashboard .dash-tools>button:nth-of-type(2){top:84px;right:18px}}
+.dashboard .dash-tools{display:flex;gap:8px;align-items:center}
+.dashboard .dash-tools>button{border:1px solid #ddd5d0!important;background:#fff!important;color:#333!important;border-radius:8px!important;padding:9px 12px!important;font-size:12px!important;font-weight:800!important;min-width:auto!important;position:static!important}
+@media(max-width:760px){.dashboard .dash-tools{width:100%;flex-wrap:wrap}}
