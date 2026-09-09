@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./admin-position.css";
+import "./reference-dashboard.css";
 import DashboardAdmin from "./DashboardAdmin";
 import ComparisonDirection from "./ComparisonDirection";
+import DashboardMapEnhancer from "./DashboardMapEnhancer";
 
 export const metadata: Metadata = {
   title: "치과 결제환경 설문",
@@ -11,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko"><body>{children}<ComparisonDirection/><DashboardAdmin/></body></html>;
+  return <html lang="ko"><body>{children}<ComparisonDirection/><DashboardMapEnhancer/><DashboardAdmin/></body></html>;
 }
