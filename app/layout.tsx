@@ -3,7 +3,6 @@ import "./globals.css";
 import "./admin-position.css";
 import "./reference-dashboard.css";
 import "./direct-ui-fixes.css";
-import "./comparison-stability.css";
 import DashboardAdmin from "./DashboardAdmin";
 
 export const metadata: Metadata = {
