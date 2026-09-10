@@ -1,0 +1,23 @@
+/* Tab 2: center all comparison table text vertically and horizontally. */
+.split-table th,
+.split-table td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.split-table textarea {
+  text-align: center !important;
+  vertical-align: middle !important;
+  align-content: center !important;
+  line-height: 1.35 !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 4px 8px !important;
+  overflow: hidden !important;
+}
+
+.split-table thead th,
+.split-table tbody th {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
