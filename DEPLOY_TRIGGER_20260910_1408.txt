@@ -1,0 +1,3 @@
+Force production redeploy for tab2 four standalone tables.
+Target source commit includes external section labels and 4 independent tables.
+Triggered at 2026-09-10.
