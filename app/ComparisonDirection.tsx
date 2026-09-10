@@ -170,6 +170,7 @@ export default function ComparisonDirection() {
         .cd-tools select,.cd-tools button{border:1px solid #ddd;background:#fff;border-radius:8px;padding:9px 12px}
         .cd-tools select{min-width:330px}.cd-tools button{margin-left:auto;display:flex;gap:6px;align-items:center;font-weight:800}
         .cd-sheet{position:relative;width:min(100%,1100px);margin:auto;background:#fff;border:1px solid #eadbcf;box-shadow:0 10px 28px rgba(83,56,38,.08);padding:22px 28px 30px;box-sizing:border-box}
+        .cd-ribbon{position:absolute;left:0;top:0;background:#ef5b20;color:#fff;font-size:19px;font-weight:900;padding:10px 38px;border-radius:0 0 8px 0}
         .cd-logo{position:absolute;right:24px;top:13px;width:118px}
         .cd-hero{text-align:center;padding:38px 120px 18px}.cd-hero h1{font-size:clamp(24px,3.6vw,38px);line-height:1.08;margin:0;font-weight:900;letter-spacing:-.055em}.cd-hero h1 b{color:#ef5b20}.cd-hero p{margin:9px 0 0;color:#777;font-size:12px}
         .cd-frame{border:1px solid #ead8cc;border-radius:14px;padding:18px;background:#fffdfb;box-sizing:border-box;width:100%}
@@ -196,7 +197,7 @@ export default function ComparisonDirection() {
         .mentor-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}.mentor{border:1px solid #f0c9b1;border-radius:14px;padding:13px;background:#fffaf6}.mentor h3{font-size:15px;margin:0 0 6px}.mentor p{font-size:10.5px;color:#555;line-height:1.5;margin:0}.mentor-note{margin-top:10px;padding:9px;border:1px solid #f2c6ad;border-radius:9px;background:#fff;font-size:10px;line-height:1.5}.mentor-note b{color:#ef5b20}
         .cd-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;color:#777;font-size:10px;gap:10px}.cd-footer img{width:92px}
         @media(max-width:900px){.cd-sheet{padding:18px 10px 24px}.cd-hero{padding:40px 80px 14px}.cd-frame{padding:12px 7px 16px}.bts-grid{grid-template-columns:1fr 1fr}.mentor-grid{grid-template-columns:1fr}.cd-tools select{min-width:0;flex:1}.section-label{margin-left:10px}}
-        @media(max-width:600px){.cd-tools{flex-wrap:wrap}.cd-tools select{width:100%}.cd-tools button{margin-left:0}.cd-logo{width:88px}.cd-hero{padding:38px 0 12px}.cd-hero h1{font-size:21px}.cd-hero p{font-size:10px}.cd-sheet{padding:16px 5px 22px}.cd-frame{padding:8px 4px}.section-label{font-size:15px;margin:0 0 4px 3px}table.van-table{min-width:680px}table.van-table th,table.van-table td{font-size:11px;padding:8px 6px}.bts-title strong{font-size:37px}.bts-title h2{font-size:21px}.bts-grid{grid-template-columns:1fr}.saving-band{grid-template-columns:1fr;gap:4px}.saving-band strong{font-size:15px}.saving-band span{font-size:25px}.cd-footer{font-size:9px}}
+        @media(max-width:600px){.cd-tools{flex-wrap:wrap}.cd-tools select{width:100%}.cd-tools button{margin-left:0}.cd-ribbon{font-size:15px;padding:8px 18px}.cd-logo{width:88px}.cd-hero{padding:38px 0 12px}.cd-hero h1{font-size:21px}.cd-hero p{font-size:10px}.cd-sheet{padding:16px 5px 22px}.cd-frame{padding:8px 4px}.section-label{font-size:15px;margin:0 0 4px 3px}table.van-table{min-width:680px}table.van-table th,table.van-table td{font-size:11px;padding:8px 6px}.bts-title strong{font-size:37px}.bts-title h2{font-size:21px}.bts-grid{grid-template-columns:1fr}.saving-band{grid-template-columns:1fr;gap:4px}.saving-band strong{font-size:15px}.saving-band span{font-size:25px}.cd-footer{font-size:9px}}
         @media print{.topbar,.cd-tools,footer{display:none!important}.comparison-direction-host{padding:0!important}.cd-sheet{box-shadow:none;border:0}.table-scroll{overflow:visible}table.van-table{min-width:0}}
       `}</style>
 
@@ -211,6 +212,7 @@ export default function ComparisonDirection() {
       </div>
 
       <section className="cd-sheet" data-tab2-version="four-standalone-tables-v4">
+        <div className="cd-ribbon">비교 제안</div>
         <img className="cd-logo" src="/osstem-wordmark-transparent.png" alt="OSSTEM"/>
         <div className="cd-hero">
           <h1>“오스템 <b>VAN서비스</b>와 비교해 드립니다”</h1>
