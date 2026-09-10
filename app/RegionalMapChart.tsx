@@ -2,25 +2,26 @@
 
 import { KOREA_MAP_PATHS } from "./korea-map-trace";
 
-// 주요 지역의 대략적인 좌표 (SVG 좌표계 기준)
+// KOREA_MAP_PATHS가 실제로 사용하는 좌표 범위에 맞춘 지역 중심점.
+// viewBox(70 45 850 1440) 기준으로 지도와 마커가 같은 좌표계를 공유한다.
 const REGION_COORDINATES: Record<string, { x: number; y: number }> = {
-  "서울": { x: 350, y: 250 },
-  "경기": { x: 300, y: 280 },
-  "인천": { x: 250, y: 220 },
-  "강원": { x: 420, y: 180 },
-  "충북": { x: 360, y: 380 },
-  "충남": { x: 320, y: 420 },
-  "세종": { x: 340, y: 360 },
-  "대전": { x: 340, y: 380 },
-  "전북": { x: 280, y: 480 },
-  "전남": { x: 240, y: 560 },
-  "광주": { x: 260, y: 520 },
-  "경북": { x: 480, y: 350 },
-  "경남": { x: 480, y: 520 },
-  "대구": { x: 460, y: 380 },
-  "울산": { x: 520, y: 400 },
-  "부산": { x: 500, y: 480 },
-  "제주": { x: 280, y: 750 },
+  "서울": { x: 368, y: 405 },
+  "경기": { x: 461, y: 491 },
+  "인천": { x: 283, y: 491 },
+  "강원": { x: 640, y: 333 },
+  "충북": { x: 521, y: 664 },
+  "충남": { x: 368, y: 751 },
+  "세종": { x: 427, y: 765 },
+  "대전": { x: 444, y: 851 },
+  "전북": { x: 427, y: 1010 },
+  "전남": { x: 317, y: 1240 },
+  "광주": { x: 342, y: 1139 },
+  "경북": { x: 665, y: 722 },
+  "경남": { x: 563, y: 1139 },
+  "대구": { x: 648, y: 880 },
+  "울산": { x: 725, y: 1039 },
+  "부산": { x: 691, y: 1226 },
+  "제주": { x: 317, y: 1413 },
 };
 
 interface RegionalData {
@@ -29,56 +30,61 @@ interface RegionalData {
 }
 
 export function RegionalMapChart({ regions, max }: { regions: RegionalData[]; max: number }) {
-  // 지역별 데이터 맵 만들기
   const regionMap = new Map(regions.map(r => [r.region, r.count]));
+  const safeMax = Math.max(1, max);
 
   return (
     <div className="regional-map-container">
       <svg
-        viewBox="0 0 900 1500"
+        viewBox="70 45 850 1440"
         width="100%"
         height="auto"
         className="korea-map-svg"
+        preserveAspectRatio="xMidYMid meet"
         style={{ maxWidth: "600px", margin: "0 auto", display: "block" }}
       >
-        {/* 지도 배경 */}
         <defs>
           <style>{`
             .map-path {
-              fill: #f0f0f0;
-              stroke: #999;
-              stroke-width: 1;
+              fill: #eeeeee;
+              stroke: #ffffff;
+              stroke-width: 4;
+              stroke-linejoin: round;
             }
             .region-marker {
               cursor: pointer;
-              transition: all 0.2s ease;
+            }
+            .region-marker circle {
+              transition: filter .15s ease, opacity .15s ease;
             }
             .region-marker:hover circle {
-              r: 35;
-              filter: drop-shadow(0 0 10px rgba(230, 85, 24, 0.6));
+              filter: drop-shadow(0 0 12px rgba(230, 85, 24, 0.55));
             }
             .region-marker text {
-              font-size: 11px;
-              font-weight: bold;
+              font-size: 24px;
+              font-weight: 900;
               text-anchor: middle;
               dominant-baseline: middle;
               pointer-events: none;
               fill: #333;
             }
+            .region-name {
+              font-size: 20px !important;
+              font-weight: 800 !important;
+              fill: #555 !important;
+            }
           `}</style>
         </defs>
 
-        {/* 지도 경로 */}
         {KOREA_MAP_PATHS.map((path, idx) => (
           <path key={idx} d={path} className="map-path" />
         ))}
 
-        {/* 지역 마커 */}
         {Object.entries(REGION_COORDINATES).map(([region, coords]) => {
           const count = regionMap.get(region) || 0;
-          const opacity = count === 0 ? 0.3 : Math.min(0.3 + (count / max) * 0.7, 1);
-          const radius = Math.max(15, 15 + (count / max) * 25);
-          const color = count === 0 ? "#ddd" : "#e65518";
+          const opacity = count === 0 ? 0.18 : Math.min(0.42 + (count / safeMax) * 0.58, 1);
+          const radius = count === 0 ? 18 : Math.max(24, 24 + (count / safeMax) * 34);
+          const color = count === 0 ? "#bdbdbd" : "#e65518";
 
           return (
             <g key={region} className="region-marker">
@@ -89,10 +95,13 @@ export function RegionalMapChart({ regions, max }: { regions: RegionalData[]; ma
                 fill={color}
                 opacity={opacity}
                 stroke="#fff"
-                strokeWidth="2"
+                strokeWidth="5"
               />
               <text x={coords.x} y={coords.y}>
                 {count > 0 ? count : "-"}
+              </text>
+              <text className="region-name" x={coords.x} y={coords.y + radius + 28}>
+                {region}
               </text>
               <title>{`${region}: ${count}건`}</title>
             </g>
@@ -102,54 +111,24 @@ export function RegionalMapChart({ regions, max }: { regions: RegionalData[]; ma
 
       <div className="regional-map-legend">
         <div className="legend-item">
-          <span className="legend-color" style={{ backgroundColor: "#e65518" }}></span>
+          <span className="legend-color active"></span>
           <span>조사 수행 지역</span>
         </div>
         <div className="legend-item">
-          <span className="legend-color" style={{ backgroundColor: "#ddd" }}></span>
+          <span className="legend-color inactive"></span>
           <span>조사 미수행 지역</span>
         </div>
         <p className="legend-note">원의 크기: 조사 건수</p>
       </div>
 
       <style>{`
-        .regional-map-container {
-          padding: 20px;
-          background: #fff;
-          border-radius: 8px;
-        }
-        .korea-map-svg {
-          border: 1px solid #e0e0e0;
-          border-radius: 4px;
-        }
-        .regional-map-legend {
-          margin-top: 20px;
-          padding: 12px;
-          background: #f9f9f9;
-          border-radius: 4px;
-          font-size: 13px;
-        }
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 8px;
-        }
-        .legend-item:last-of-type {
-          margin-bottom: 0;
-        }
-        .legend-color {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          display: inline-block;
-          border: 1px solid #ccc;
-        }
-        .legend-note {
-          font-size: 12px;
-          color: #666;
-          margin-top: 8px;
-        }
+        .regional-map-container{padding:14px 18px 12px;background:#fff;border-radius:8px}
+        .korea-map-svg{border:0;border-radius:4px;overflow:visible}
+        .regional-map-legend{margin-top:10px;padding:10px 12px;background:#f9f9f9;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+        .legend-item{display:flex;align-items:center;gap:7px}
+        .legend-color{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid #ccc}
+        .legend-color.active{background:#e65518}.legend-color.inactive{background:#bdbdbd;opacity:.5}
+        .legend-note{font-size:11px;color:#666;margin:0 0 0 auto}
       `}</style>
     </div>
   );
