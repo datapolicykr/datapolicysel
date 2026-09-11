@@ -1,6 +1,5 @@
 /* Dashboard visual alignment to supplied PPT image. Functional DOM and Admin portal are preserved. */
 .dashboard{position:relative;max-width:1120px!important;padding-top:34px!important}
-.dashboard::before{content:"대쉬 보드";position:absolute;left:0;top:0;background:#ef5b20;color:#fff;font-weight:900;font-size:18px;padding:9px 34px;border-radius:0 0 8px 0;z-index:2}
 .dashboard-head{position:relative;display:flex!important;justify-content:space-between!important;align-items:flex-start!important;border-top:0!important;padding-top:28px!important;margin-top:0!important;margin-bottom:14px!important}
 .dashboard-head::after{content:"OSSTEM";position:absolute;right:4px;top:4px;color:#ef5b20;font-weight:900;font-size:24px;font-style:italic;letter-spacing:-1px}
 .dashboard-head>div{padding-right:150px}
