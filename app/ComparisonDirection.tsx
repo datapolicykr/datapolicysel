@@ -212,7 +212,6 @@ export default function ComparisonDirection() {
       </div>
 
       <section className="cd-sheet" data-tab2-version="four-standalone-tables-v4">
-        <div className="cd-ribbon">비교 제안</div>
         <img className="cd-logo" src="/osstem-wordmark-transparent.png" alt="OSSTEM"/>
         <div className="cd-hero">
           <h1>“오스템 <b>VAN서비스</b>와 비교해 드립니다”</h1>
