@@ -21,6 +21,19 @@ const contractItems:[[string,number?],[string,number?],[string,number?],[string,
 export default function Home(){
  const [tab,setTab]=useState<"survey"|"compare"|"dashboard">("survey"),[answers,setAnswers]=useState<Record<string,string[]>>({}),[contract,setContract]=useState(""),[summary,setSummary]=useState(S),[saving,setSaving]=useState(false),[message,setMessage]=useState("");
  const load=async()=>{const r=await fetch("/api/surveys",{cache:"no-store"});if(r.ok)setSummary(await r.json())};useEffect(()=>{void load()},[]);
+ useEffect(()=>{
+  const updateTabletLayout=()=>{
+   const viewportWidth=window.innerWidth;
+   const largeDevice=Math.min(window.screen.width,window.screen.height)>=700;
+   const useFixedLayout=largeDevice&&viewportWidth<1180;
+   document.documentElement.toggleAttribute("data-fixed-tab-layout",useFixedLayout);
+   document.documentElement.style.setProperty("--fixed-tab-scale",useFixedLayout?String(Math.max(.35,(viewportWidth-24)/1160)):"1");
+  };
+  updateTabletLayout();
+  window.addEventListener("resize",updateTabletLayout);
+  window.addEventListener("orientationchange",updateTabletLayout);
+  return()=>{window.removeEventListener("resize",updateTabletLayout);window.removeEventListener("orientationchange",updateTabletLayout)};
+ },[]);
  const toggle=(name:string,label:string)=>setAnswers(a=>({...a,[name]:(a[name]??[]).includes(label)?a[name].filter(x=>x!==label):[...(a[name]??[]),label]}));
  async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setSaving(true);setMessage("");const f=new FormData(e.currentTarget),raw=Object.fromEntries(f.entries());const currentPms=[raw.currentPms,raw.pmsLinkStatus&&`연동여부 ${raw.pmsLinkStatus}`].filter(Boolean).join(" · "),currentVanDealer=[raw.currentVanDealer,raw.currentDealer&&`대리점 ${raw.currentDealer}`].filter(Boolean).join(" · "),terminalUsePeriod=raw.usePeriodUnknown?"모름":String(raw.consultationUsePeriod||raw.terminalUsePeriod||"");const r=await fetch("/api/surveys",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...raw,...answers,contractType:contract,currentPms,currentVanDealer,terminalUsePeriod})});setSaving(false);if(!r.ok){const x=await r.json().catch(()=>({}));setMessage(x.error??"저장 중 문제가 발생했습니다.");return}e.currentTarget.reset();setAnswers({});setContract("");setMessage("설문이 정상적으로 저장되었습니다.");await load();}
  const max=Math.max(1,...summary.regions.map(x=>x.count));
