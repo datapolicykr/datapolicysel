@@ -63,3 +63,62 @@
  .compare-bts-band{grid-template-columns:minmax(0,1fr) auto;padding:12px 10px;gap:8px}.compare-bts-band strong{font-size:12px}.compare-bts-band strong small{font-size:8px}.compare-bts-band span{font-size:18px;text-align:right}
  .compare-bts-card:nth-child(2) .compare-bts-before,.compare-bts-card:nth-child(2) .compare-bts-after{font-size:9px!important}.compare-bts-card:nth-child(2) .compare-bts-saving{font-size:9px!important}
 }
+
+/* 10-inch-and-larger devices: tabs 2 and 3 retain the desktop composition
+   in narrow/portrait browser windows and scale as one canvas to fit. */
+html[data-fixed-tab-layout] .compare-page,
+html[data-fixed-tab-layout] .dashboard{
+ width:1160px!important;
+ max-width:1160px!important;
+ margin-left:auto!important;
+ margin-right:auto!important;
+ zoom:var(--fixed-tab-scale,1);
+}
+html[data-fixed-tab-layout] .compare-page{
+ padding-left:22px!important;
+ padding-right:22px!important;
+}
+html[data-fixed-tab-layout] .compare-sheet{
+ padding:18px 20px 34px!important;
+}
+html[data-fixed-tab-layout] .compare-frame{
+ padding:22px 18px 26px!important;
+}
+html[data-fixed-tab-layout] .compare-bts-head{
+ grid-template-columns:minmax(0,1fr) auto!important;
+}
+html[data-fixed-tab-layout] .compare-bts-script{
+ display:block!important;
+}
+html[data-fixed-tab-layout] .compare-bts-grid{
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+html[data-fixed-tab-layout] .compare-bts-mentors{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+html[data-fixed-tab-layout] .dashboard{
+ padding-left:22px!important;
+ padding-right:22px!important;
+}
+html[data-fixed-tab-layout] .dashboard .dash-tools{
+ grid-template-columns:150px 1fr auto auto!important;
+}
+html[data-fixed-tab-layout] .dashboard .dash-tools select{
+ grid-column:1!important;
+}
+html[data-fixed-tab-layout] .dashboard .dash-tools>button:nth-of-type(1){
+ grid-column:3!important;
+}
+html[data-fixed-tab-layout] .kpis.five{
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:12px!important;
+}
+html[data-fixed-tab-layout] .dashboard>.chart-grid{
+ grid-template-columns:1fr 1fr!important;
+}
+html[data-fixed-tab-layout] .dashboard>.chart-grid.lower{
+ grid-template-columns:1fr!important;
+}
+html[data-fixed-tab-layout] .dashboard-korea-map{
+ height:360px!important;
+}
